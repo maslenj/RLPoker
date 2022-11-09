@@ -1,7 +1,6 @@
 import rlcard
-from rlcard.agents import LeducholdemHumanAgent as HumanAgent
-from leduc_random_agent import RandomAgent
-from leduc_logic_agent import LogicAgent
+from agents.leduc.leduc_random_agent import RandomAgent
+from agents.leduc.leduc_logic_agent import LogicAgent
 
 
 # Make environment
