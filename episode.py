@@ -21,6 +21,7 @@ Actions:
 
 def gen_episode(p, hand):
     player = hand['players'][p]
+    opp_p = (p - 1) * -1
     ep = []
     pots = []
     for stage in ['f', 't', 'r', 's']:
@@ -29,13 +30,13 @@ def gen_episode(p, hand):
 
     S = {'a_cards': player['pocket_cards'], 'o_cards': [], 'pot': None, 'call': None,
          'curr_bank': player['bankroll'],
-         'opp_bank': hand['players'][(p - 1) * -1]['bankroll']}
+         'opp_bank': hand['players'][opp_p]['bankroll']}
 
     for i, bet_round in enumerate(player['bets']):
         S = copy.deepcopy(S)
         A = bet_round
         S['curr_bank'] = player['bankroll']
-        S['opp_bank'] = hand['players'][(p - 1) * -1]['bankroll']
+        S['opp_bank'] = hand['players'][opp_p]['bankroll']
         if bet_round['stage'] == 'p':
             S['o_cards'] = []
             S['pot'] = pots[0]
