@@ -1,10 +1,15 @@
 import rlcard
 from agents.leduc.leduc_random_agent import RandomAgent
 from agents.leduc.leduc_logic_agent import LogicAgent
+import rlcard.envs.leducholdem
 
 
 # Make environment
 env = rlcard.make('leduc-holdem')
+
+print(env)
+exit()
+
 random_agent = RandomAgent()
 logic_agent = LogicAgent()
 env.set_agents([
