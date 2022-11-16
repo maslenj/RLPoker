@@ -2,7 +2,7 @@ import numpy as np
 
 
 class LeducPoker:
-    DECK_CARDS = ['Kh', 'Kd', 'Qh', 'Qd', 'Jh', 'Jd']
+    DECK_CARDS = ['HK', 'SK', 'HQ', 'SQ', 'HJ', 'SJ']
     HAND_RANKS = {
         'KK': 0,
         'QQ': 1,
@@ -12,10 +12,30 @@ class LeducPoker:
         'JQ': 3
     }
 
-    def __init__(self, player_0_bankroll, player_1_bankroll):
-        # initialize game
+    def __init__(self, state=None, player_0_bankroll=100, player_1_bankroll=100):
         self.deck = LeducPoker.DECK_CARDS.copy()
         np.random.shuffle(self.deck)
+
+        if state:
+            '''
+            'raw_obs': 
+            {
+                'hand': 'SQ', 
+                'public_card': 'HJ', 
+                'all_chips': [2, 2], 
+                'my_chips': 2, 
+                'legal_actions': ['raise', 'fold', 'check'], 
+                'current_player': 1}, 
+                'raw_legal_actions': ['raise', 'fold', 'check'], 
+                'action_record': [(1, 'call'), (0, 'check')]
+            }
+            '''
+            self.players = [
+                {
+                    'hand': state['raw_obs']['hand'],
+                    'bankroll': state['raw_obs']['my_chips']
+                }
+            ]
         self.players = [
             {
                 'hand': self.deck.pop(),
@@ -79,7 +99,7 @@ class LeducPoker:
     @staticmethod
     def _create_hand(hold_card, community_card):
         hand = ""
-        sorted_hand = [hold_card[0], community_card[0]]
+        sorted_hand = [hold_card[1], community_card[1]]
         sorted_hand.sort()
         for card in sorted_hand:
             hand += card

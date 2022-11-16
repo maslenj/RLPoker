@@ -1,4 +1,5 @@
 import numpy as np
+from games.leduc.leduc_game import LeducPoker
 
 
 class MCTSAgent(object):
@@ -16,6 +17,9 @@ class MCTSAgent(object):
         # create N table (number of times each state-action pair
         # has been visited)
         N = {}
+
+        # generate initial starting state
+        current_state = LeducPoker(state=state)
 
         return np.random.choice(list(state['legal_actions'].keys()))
 
