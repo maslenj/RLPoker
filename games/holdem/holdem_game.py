@@ -168,21 +168,27 @@ class HoldemPoker:
         return card
 
     # todo: Rob
-    # def input_state(self, state):
-    #     self.community_cards, self.round_number, \
-    #     self.round_history, self.pot, \
-    #     self.calling_amount, self.players = state
+    def input_state(self, state):
+        self.deck, self.community_cards, self.round_number, \
+        self.bet_number, self.pot, \
+        self.calling_amount, self.start_player, \
+        self.current_player, self.num_raises, \
+        self.players = state
 
     # todo: Rob
     def print_state(self):
+        stage = {0: 'Pre-flop', 1: 'Flop', 2: 'River', 3: 'Turn'}
         print("-----------------------------")
         print("Community cards:", self.community_cards)
         print("Round number:", self.round_number)
+        print(f"Stage: {stage[self.round_number]}")
         print("Pot:", self.pot)
         print("Calling amount:", self.calling_amount)
+        print("Bet number: ", self.bet_number)
+        print("Current player: ", self.current_player)
         for i, player in enumerate(self.players):
             print("-----------------------------")
-            print(f"Curr Player: {i}")
+            print(f"Player: {i}")
             print("Hand:", player['hand'])
             print("Bankroll:", player['bankroll'])
         print("-----------------------------")
