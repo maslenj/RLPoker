@@ -94,6 +94,7 @@ class HoldemPoker:
                 self.round_number += 1
                 self.game_step()
                 self.bet_number = 0
+                self.num_raises = 0
                 return
             self.bet_number += 1
         elif action == 'fold':
@@ -105,7 +106,10 @@ class HoldemPoker:
             # Raise
             self.pot += self.raise_amount
             self.calling_amount = self.raise_amount
-            self.players[self.current_player]['bankroll'] -= self.calling_amount
+            if self.num_raises > 0:
+                self.players[self.current_player]['bankroll'] -= self.calling_amount + self.raise_amount
+            else:
+                self.players[self.current_player]['bankroll'] -= self.calling_amount
             self.bet_number += 1
             self.current_player = (self.current_player + 1) % 2
             self.num_raises += 1
