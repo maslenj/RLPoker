@@ -1,5 +1,5 @@
 from pokerlib import HandParser
-from pokerlib.enums import Rank, Suit
+from pokerlib.enums import Value, Suit
 import random
 
 
@@ -12,19 +12,19 @@ class HoldemPoker:
     PLAYER_1_WIN = 1
     SPLIT_POT = 2
     RankDict = {
-        'A': Rank.ACE,
-        '2': Rank.TWO,
-        '3': Rank.THREE,
-        '4': Rank.FOUR,
-        '5': Rank.FIVE,
-        '6': Rank.SIX,
-        '7': Rank.SEVEN,
-        '8': Rank.EIGHT,
-        '9': Rank.NINE,
-        'T': Rank.TEN,
-        'J': Rank.JACK,
-        'Q': Rank.QUEEN,
-        'K': Rank.KING,
+        'A': Value.ACE,
+        '2': Value.TWO,
+        '3': Value.THREE,
+        '4': Value.FOUR,
+        '5': Value.FIVE,
+        '6': Value.SIX,
+        '7': Value.SEVEN,
+        '8': Value.EIGHT,
+        '9': Value.NINE,
+        'T': Value.TEN,
+        'J': Value.JACK,
+        'Q': Value.QUEEN,
+        'K': Value.KING,
     }
     SuitDict = {
         's': Suit.SPADE,
@@ -45,22 +45,24 @@ class HoldemPoker:
         self.start_player = 0
         self.current_player = 0
         self.num_raises = 0
+        self.game_over = False
         self.players = [
             {
                 'hand': [],
                 'bankroll': bankrolls[i]
             } for i in range(self.num_players)
         ]
-        self.new_game()
 
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
         if self.num_raises > 1:
             actions.remove('raise')
+        if self.is_game_over():
+            actions = []
         return actions
 
     def game_step(self):
-        if self.is_game_over():
+        if self.round_number == 4:
             result = self.decide_winner()
             if result == HoldemPoker.PLAYER_0_WIN:
                 self.players[0]['bankroll'] += self.pot
@@ -69,8 +71,7 @@ class HoldemPoker:
             else:
                 self.players[0]['bankroll'] += self.pot / 2
                 self.players[1]['bankroll'] += self.pot / 2
-            self.new_game()
-            return
+            self.game_over = True
         if self.round_number == 0:
             for p in self.players:
                 for i in range(2):
@@ -100,16 +101,13 @@ class HoldemPoker:
         elif action == 'fold':
             self.players[(self.current_player + 1) % 2]['bankroll'] += self.pot
             self.pot = 0
-            self.new_game()
+            self.game_over = True
             return
         else:
             # Raise
-            self.pot += self.raise_amount
+            self.pot += self.raise_amount + self.calling_amount
+            self.players[self.current_player]['bankroll'] -= self.calling_amount + self.raise_amount
             self.calling_amount = self.raise_amount
-            if self.num_raises > 0:
-                self.players[self.current_player]['bankroll'] -= self.calling_amount + self.raise_amount
-            else:
-                self.players[self.current_player]['bankroll'] -= self.calling_amount
             self.bet_number += 1
             self.current_player = (self.current_player + 1) % 2
             self.num_raises += 1
@@ -124,6 +122,7 @@ class HoldemPoker:
         self.calling_amount = 0
         self.current_player = self.start_player
         self.num_raises = 0
+        self.game_over = False
         for p in self.players:
             p['hand'] = []
             p['bankroll'] -= self.raise_amount
@@ -131,7 +130,7 @@ class HoldemPoker:
 
     # todo: Rob
     def is_game_over(self):
-        return self.round_number == 4
+        return self.game_over
 
     def decide_winner(self):
         """
