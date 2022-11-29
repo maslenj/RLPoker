@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pokerlib import HandParser
 from pokerlib.enums import Value, Suit
 import random
@@ -33,25 +34,30 @@ class HoldemPoker:
         'c': Suit.CLUB,
     }
 
-    def __init__(self, bankrolls=(100, 100)):
-        self.num_players = 2
-        self.deck = self.DECK.copy()
-        self.community_cards = []
-        self.round_number = 0
-        self.bet_number = 0
-        self.pot = 0
-        self.calling_amount = 0
-        self.raise_amount = 5
-        self.start_player = 0
-        self.current_player = 0
-        self.num_raises = 0
-        self.game_over = False
+    def __init__(self, num_players=2, bankrolls=(100, 100), deck=None, community_cards=None, round_number=None,
+                 bet_number=None, pot=None, calling_amount=None, raise_amount=None, start_player=None,
+                 current_player=None, num_raises=None, game_over=None, hands=None):
+        self.num_players = num_players
+        self.deck = deck
+        self.community_cards = community_cards
+        self.round_number = round_number
+        self.bet_number = bet_number
+        self.pot = pot
+        self.calling_amount = calling_amount
+        self.raise_amount = raise_amount
+        self.start_player = start_player
+        self.current_player = current_player
+        self.num_raises = num_raises
+        self.game_over = game_over
         self.players = [
             {
                 'hand': [],
                 'bankroll': bankrolls[i]
             } for i in range(self.num_players)
         ]
+        if hands:
+            for i in range(self.num_players):
+                self.players[i]["hand"] = hands[i]
 
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
@@ -61,7 +67,7 @@ class HoldemPoker:
             actions = []
         return actions
 
-    def game_step(self):
+    def _game_step(self):
         if self.round_number == 4:
             result = self.decide_winner()
             if result == HoldemPoker.PLAYER_0_WIN:
@@ -82,7 +88,7 @@ class HoldemPoker:
         else:
             self.community_cards.append(self.deal_card())
 
-    def make_move(self, action):
+    def make_move(self, action: str):
         if action not in self.get_legal_actions():
             print("Illegal action")
             return
@@ -93,7 +99,7 @@ class HoldemPoker:
             self.current_player = (self.current_player + 1) % 2
             if self.bet_number > 0:
                 self.round_number += 1
-                self.game_step()
+                self._game_step()
                 self.bet_number = 0
                 self.num_raises = 0
                 return
@@ -126,9 +132,8 @@ class HoldemPoker:
         for p in self.players:
             p['hand'] = []
             p['bankroll'] -= self.raise_amount
-        self.game_step()
+        self._game_step()
 
-    # todo: Rob
     def is_game_over(self):
         return self.game_over
 
@@ -164,21 +169,11 @@ class HoldemPoker:
         else:
             return HoldemPoker.SPLIT_POT
 
-    # todo: Rob
     def deal_card(self):
         card = random.choice(self.deck)
         self.deck.remove(card)
         return card
 
-    # todo: Rob
-    def input_state(self, state):
-        self.deck, self.community_cards, self.round_number, \
-        self.bet_number, self.pot, \
-        self.calling_amount, self.start_player, \
-        self.current_player, self.num_raises, \
-        self.players = state
-
-    # todo: Rob
     def print_state(self):
         stage = {0: 'Pre-flop', 1: 'Flop', 2: 'River', 3: 'Turn'}
         print("-----------------------------")
@@ -195,6 +190,21 @@ class HoldemPoker:
             print("Hand:", player['hand'])
             print("Bankroll:", player['bankroll'])
         print("-----------------------------")
+
+    def __copy__(self):
+        return HoldemPoker(bankrolls=(self.players[i]["bankroll"] for i in range(self.num_players)),
+                           deck=self.deck.copy(), community_cards=self.community_cards.copy(),
+                           round_number=self.round_number, bet_number=self.bet_number, pot=self.pot,
+                           calling_amount=self.calling_amount, raise_amount=self.raise_amount,
+                           start_player=self.start_player, current_player=self.current_player,
+                           num_raises=self.num_raises, game_over=self.game_over,
+                           hands=(self.players[i]["hand"] for i in range(self.num_players)))
+
+    def serialize(self):
+        return self.community_cards, self.round_number, self.bet_number, self.pot, self.calling_amount, \
+               self.raise_amount, self.current_player, self.num_raises, self.players[0]["bankroll"], \
+               self.players[1]["bankroll"], self.players[self.current_player]["hand"][0], \
+               self.players[self.current_player]["hand"][1]
 
 
 def main():
