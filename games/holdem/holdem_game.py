@@ -35,7 +35,7 @@ class HoldemPoker:
     }
 
     def __init__(self, num_players=2, bankrolls=(100, 100), deck=None, community_cards=None, round_number=None,
-                 bet_number=None, pot=None, calling_amount=None, raise_amount=5, start_player=0,
+                 bet_number=None, pot=None, calling_amount=None, raise_amount=1, start_player=0,
                  current_player=None, num_raises=None, game_over=None, hands=None):
         self.num_players = num_players
         self.deck = deck
@@ -61,31 +61,40 @@ class HoldemPoker:
 
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
-        if self.num_raises > 1:
+        if self.num_raises > 1 or \
+                self.players[self.current_player]["bankroll"] < self.calling_amount + self.raise_amount or \
+                self.players[(self.current_player + 1) % 2]["bankroll"] < self.raise_amount:
             actions.remove('raise')
         if self.is_game_over():
             actions = []
         return actions
 
+    def _showdown(self):
+        while len(self.community_cards) != 5:
+            self.community_cards.append(self.deal_card())
+        result = self.decide_winner()
+        if result == HoldemPoker.PLAYER_0_WIN:
+            self.players[0]['bankroll'] += self.pot
+        elif result == HoldemPoker.PLAYER_1_WIN:
+            self.players[1]['bankroll'] += self.pot
+        else:
+            self.players[0]['bankroll'] += self.pot / 2
+            self.players[1]['bankroll'] += self.pot / 2
+        self.game_over = True
+
     def _game_step(self):
-        if self.round_number == 4:
-            result = self.decide_winner()
-            if result == HoldemPoker.PLAYER_0_WIN:
-                self.players[0]['bankroll'] += self.pot
-            elif result == HoldemPoker.PLAYER_1_WIN:
-                self.players[1]['bankroll'] += self.pot
-            else:
-                self.players[0]['bankroll'] += self.pot / 2
-                self.players[1]['bankroll'] += self.pot / 2
-            self.game_over = True
         if self.round_number == 0:
+            self.pot = 2 * self.raise_amount
             for p in self.players:
+                p['bankroll'] -= self.raise_amount
                 for i in range(2):
                     p['hand'].append(self.deal_card())
+        if self.round_number == 4:
+            self._showdown()
         elif self.round_number == 1:
             for i in range(3):
                 self.community_cards.append(self.deal_card())
-        else:
+        elif self.round_number != 0:
             self.community_cards.append(self.deal_card())
 
     def make_move(self, action: str):
@@ -117,6 +126,10 @@ class HoldemPoker:
             self.bet_number += 1
             self.current_player = (self.current_player + 1) % 2
             self.num_raises += 1
+        # check if players are out of money
+        if (self.players[0]["bankroll"] < self.raise_amount and self.calling_amount == 0) or \
+                (self.players[1]["bankroll"] < self.raise_amount and self.calling_amount == 0):
+            self._showdown()
 
     def new_game(self):
         self.deck = self.DECK.copy()
@@ -124,14 +137,17 @@ class HoldemPoker:
         self.round_number = 0
         self.start_player = (self.start_player + 1) % 2
         self.bet_number = 0
-        self.pot = 2 * self.raise_amount
+        self.pot = 0
         self.calling_amount = 0
         self.current_player = self.start_player
         self.num_raises = 0
         self.game_over = False
         for p in self.players:
-            p['hand'] = []
-            p['bankroll'] -= self.raise_amount
+            p["hand"] = []
+        for i in range(self.num_players):
+            if self.players[i]["bankroll"] < self.raise_amount:
+                print(f"a new game cannot be started because player {i} is broke (has ${self.players[i]['bankroll']})")
+                self.game_over = True
         self._game_step()
 
     def is_game_over(self):

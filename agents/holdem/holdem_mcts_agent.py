@@ -26,7 +26,7 @@ class HoldemMCTSAgent:
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
-        num_iterations = 1000
+        num_iterations = 100
         Q = {}
         N = {}
         T = {}
