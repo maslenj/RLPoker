@@ -1,6 +1,4 @@
-import math
 import random
-import numpy as np
 from numpy import sqrt, log
 
 from games.holdem.holdem_game import HoldemPoker
@@ -19,6 +17,8 @@ class HoldemMCTSAgent:
         deck = HoldemPoker.DECK.copy()
         deck.remove(state.players[0]['hand'][0])
         deck.remove(state.players[0]['hand'][1])
+        for card in state.community_cards:
+            deck.remove(card)
         card1 = random.choice(deck)
         deck.remove(card1)
         card2 = random.choice(deck)
