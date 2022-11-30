@@ -1,9 +1,10 @@
 from games.holdem.holdem_game import HoldemPoker
 from agents.holdem.holdem_random_agent import HoldemRandomAgent
+from agents.holdem.holdem_mcts_agent import HoldemMCTSAgent
 
 num_games = 100
 game = HoldemPoker(bankrolls=(1000, 1000))
-agents = [HoldemRandomAgent(), HoldemRandomAgent()]
+agents = [HoldemMCTSAgent(), HoldemRandomAgent()]
 for _ in range(num_games):
     game.new_game()
     while not game.is_game_over():

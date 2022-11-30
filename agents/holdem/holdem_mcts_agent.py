@@ -31,7 +31,9 @@ class HoldemMCTSAgent:
         N = {}
         T = {}
         for itr in range(num_iterations):
-            model_game = HoldemPoker(state)
+            model_game = state.__copy__()
+            initial_bankroll = model_game.players[0]["bankroll"]
+            path = []
             while not model_game.is_game_over():
                 # make move
                 # initialize new Q values
@@ -52,11 +54,25 @@ class HoldemMCTSAgent:
                 for i in range(len(actions)):
                     if action_values[i] == best_val:
                         candidate_actions.append(actions[i])
-                action = random.choice(candidate_actions)
-                model_game.make_move(action)
+                A = random.choice(candidate_actions)
+                model_game.make_move(A)
+                path.append((S, A))
+                # check for terminal state and store results
+                if model_game.is_game_over():
+                    break
 
-                # check for terminal state and store results
                 # opponent make move
-                # check for terminal state and store results
-                pass
-        pass
+                opponent_action = self.opponent_action_model(model_game)
+                model_game.make_move(opponent_action)
+            final_bankroll = model_game.players[0]['bankroll']
+            R = final_bankroll - initial_bankroll
+            for SA in path:
+                Q[SA] = Q[SA] + (1 / N[SA]) * (R - Q[SA])
+        # pick best action greedily
+        S = state.serialize()
+        actions = state.get_legal_actions()
+        best_action = actions[0]
+        for action in actions:
+            if Q[(S, action)] > Q[(S, best_action)]:
+                best_action = action
+        return best_action

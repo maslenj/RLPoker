@@ -35,7 +35,7 @@ class HoldemPoker:
     }
 
     def __init__(self, num_players=2, bankrolls=(100, 100), deck=None, community_cards=None, round_number=None,
-                 bet_number=None, pot=None, calling_amount=None, raise_amount=None, start_player=None,
+                 bet_number=None, pot=None, calling_amount=None, raise_amount=5, start_player=0,
                  current_player=None, num_raises=None, game_over=None, hands=None):
         self.num_players = num_players
         self.deck = deck
@@ -192,16 +192,22 @@ class HoldemPoker:
         print("-----------------------------")
 
     def __copy__(self):
-        return HoldemPoker(bankrolls=(self.players[i]["bankroll"] for i in range(self.num_players)),
+        return HoldemPoker(bankrolls=(self.players[0]["bankroll"], self.players[1]["bankroll"]),
                            deck=self.deck.copy(), community_cards=self.community_cards.copy(),
                            round_number=self.round_number, bet_number=self.bet_number, pot=self.pot,
                            calling_amount=self.calling_amount, raise_amount=self.raise_amount,
                            start_player=self.start_player, current_player=self.current_player,
                            num_raises=self.num_raises, game_over=self.game_over,
-                           hands=(self.players[i]["hand"] for i in range(self.num_players)))
+                           hands=(self.players[0]["hand"], self.players[1]["hand"]))
 
     def serialize(self):
-        return self.community_cards, self.round_number, self.bet_number, self.pot, self.calling_amount, \
+
+        return self.community_cards[0] if len(self.community_cards) > 0 else None, \
+               self.community_cards[1] if len(self.community_cards) > 1 else None, \
+               self.community_cards[2] if len(self.community_cards) > 2 else None, \
+               self.community_cards[3] if len(self.community_cards) > 3 else None, \
+               self.community_cards[4] if len(self.community_cards) > 4 else None,\
+               self.round_number, self.bet_number, self.pot, self.calling_amount, \
                self.raise_amount, self.current_player, self.num_raises, self.players[0]["bankroll"], \
                self.players[1]["bankroll"], self.players[self.current_player]["hand"][0], \
                self.players[self.current_player]["hand"][1]
