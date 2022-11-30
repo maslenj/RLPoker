@@ -36,7 +36,7 @@ class HoldemPoker:
 
     def __init__(self, num_players=2, bankrolls=(100, 100), deck=None, community_cards=None, round_number=None,
                  bet_number=None, pot=None, calling_amount=None, raise_amount=1, start_player=0,
-                 current_player=None, num_raises=None, game_over=None, hands=None):
+                 current_player=None, round_raises=None, game_over=None, hands=None):
         self.num_players = num_players
         self.deck = deck
         self.community_cards = community_cards
@@ -47,7 +47,7 @@ class HoldemPoker:
         self.raise_amount = raise_amount
         self.start_player = start_player
         self.current_player = current_player
-        self.num_raises = num_raises
+        self.round_raises = round_raises
         self.game_over = game_over
         self.players = [
             {
@@ -61,7 +61,7 @@ class HoldemPoker:
 
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
-        if self.num_raises > 3 or \
+        if self.round_raises[self.round_number] > 3 or \
                 self.players[self.current_player]["bankroll"] < self.calling_amount + self.raise_amount or \
                 self.players[(self.current_player + 1) % 2]["bankroll"] < self.raise_amount:
             actions.remove('raise')
@@ -110,7 +110,6 @@ class HoldemPoker:
                 self.round_number += 1
                 self._game_step()
                 self.bet_number = 0
-                self.num_raises = 0
                 return
             self.bet_number += 1
         elif action == 'fold':
@@ -125,7 +124,7 @@ class HoldemPoker:
             self.calling_amount = self.raise_amount
             self.bet_number += 1
             self.current_player = (self.current_player + 1) % 2
-            self.num_raises += 1
+            self.round_raises[self.round_number] += 1
         # check if players are out of money
         if (self.players[0]["bankroll"] < self.raise_amount and self.calling_amount == 0) or \
                 (self.players[1]["bankroll"] < self.raise_amount and self.calling_amount == 0):
@@ -140,7 +139,7 @@ class HoldemPoker:
         self.pot = 0
         self.calling_amount = 0
         self.current_player = self.start_player
-        self.num_raises = 0
+        self.round_raises = [0, 0, 0, 0]
         self.game_over = False
         for p in self.players:
             p["hand"] = []
@@ -213,7 +212,7 @@ class HoldemPoker:
                            round_number=self.round_number, bet_number=self.bet_number, pot=self.pot,
                            calling_amount=self.calling_amount, raise_amount=self.raise_amount,
                            start_player=self.start_player, current_player=self.current_player,
-                           num_raises=self.num_raises, game_over=self.game_over,
+                           round_raises=self.round_raises.copy(), game_over=self.game_over,
                            hands=(self.players[0]["hand"], self.players[1]["hand"]))
 
     def serialize(self):
@@ -224,9 +223,9 @@ class HoldemPoker:
                self.community_cards[3] if len(self.community_cards) > 3 else None, \
                self.community_cards[4] if len(self.community_cards) > 4 else None,\
                self.round_number, self.bet_number, self.pot, self.calling_amount, \
-               self.raise_amount, self.current_player, self.num_raises, self.players[0]["bankroll"], \
-               self.players[1]["bankroll"], self.players[self.current_player]["hand"][0], \
-               self.players[self.current_player]["hand"][1]
+               self.raise_amount, self.current_player, self.round_raises[0], self.round_raises[1], \
+               self.round_raises[2], self.round_raises[3], self.players[0]["bankroll"], self.players[1]["bankroll"], \
+               self.players[self.current_player]["hand"][0], self.players[self.current_player]["hand"][1]
 
 
 def main():
