@@ -61,7 +61,7 @@ class HoldemPoker:
 
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
-        if self.num_raises > 1 or \
+        if self.num_raises > 3 or \
                 self.players[self.current_player]["bankroll"] < self.calling_amount + self.raise_amount or \
                 self.players[(self.current_player + 1) % 2]["bankroll"] < self.raise_amount:
             actions.remove('raise')
