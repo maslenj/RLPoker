@@ -2,7 +2,7 @@ from __future__ import annotations
 from pokerlib import HandParser
 from pokerlib.enums import Value, Suit
 import random
-from translate_state import state_to_DQN
+from games.holdem.translate_state import state_to_DQN
 
 
 class HoldemPoker:
@@ -60,7 +60,7 @@ class HoldemPoker:
             for i in range(self.num_players):
                 self.players[i]["hand"] = hands[i]
 
-    def _get_state(self):
+    def get_state(self):
         state = {'agent_hand': self.players[self.current_player]['hand'],
                  'community_cards': self.community_cards,
                  'pot': self.pot,

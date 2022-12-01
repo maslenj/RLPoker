@@ -2,7 +2,6 @@ import copy
 
 # raw_obs': {'hand': ['CK', 'SA'], 'public_cards': [], 'all_chips': [1, 2], 'my_chips': 1,
 # 'legal_actions': ['raise', 'fold', 'check'], 'raise_nums': [0, 0, 0, 0]},
-# 'raw_legal_actions': ['raise', 'fold', 'check'], 'action_record': [(0, 'fold')]}
 
 # state = {'agent_hand': self.players[self.current_player]['hand'],
 #                  'community_cards': self.community_cards,
@@ -39,8 +38,5 @@ def state_to_DQN(state):
         raw_state['legal_actions'].pop(0)
         raw_state['legal_actions'].append('check')
     raw_state['raise_nums'] = state['round_raises']
-    raw_state['raw_legal_actions'] = copy.deepcopy(raw_state['legal_actions'])
-    raw_state['action_record'] = []
-    print(raw_state)
     return raw_state
 
