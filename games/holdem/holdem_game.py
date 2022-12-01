@@ -2,6 +2,7 @@ from __future__ import annotations
 from pokerlib import HandParser
 from pokerlib.enums import Value, Suit
 import random
+from translate_state import state_to_DQN
 
 
 class HoldemPoker:
@@ -59,6 +60,16 @@ class HoldemPoker:
             for i in range(self.num_players):
                 self.players[i]["hand"] = hands[i]
 
+    def _get_state(self):
+        state = {'agent_hand': self.players[self.current_player]['hand'],
+                 'community_cards': self.community_cards,
+                 'pot': self.pot,
+                 'legal_actions': self.get_legal_actions(),
+                 'calling_amount': self.calling_amount,
+                 'round_raises': self.round_raises,
+                 }
+        return state
+
     def get_legal_actions(self):
         actions = ['call', 'raise', 'fold']
         if self.round_raises[self.round_number] > 3 or \
@@ -89,7 +100,7 @@ class HoldemPoker:
                 p['bankroll'] -= self.raise_amount
                 for i in range(2):
                     p['hand'].append(self.deal_card())
-        if self.round_number == 4:
+        elif self.round_number == 4:
             self._showdown()
         elif self.round_number == 1:
             for i in range(3):
@@ -230,10 +241,13 @@ class HoldemPoker:
 
 def main():
     P = HoldemPoker()
+    P.new_game()
     while True:
         P.print_state()
         action = input()
         P.make_move(action)
+        if P.game_over:
+            P.new_game()
 
 
 if __name__ == '__main__':
