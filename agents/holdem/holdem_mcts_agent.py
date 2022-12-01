@@ -23,7 +23,7 @@ from games.holdem.translate_state import state_to_DQN
 from games.holdem.holdem_game import HoldemPoker
 
 
-def get_DQN_values(state):
+def get_DQN_values(state, agent):
     env = rlcard.make(
         'limit-holdem',
         config={
@@ -32,7 +32,6 @@ def get_DQN_values(state):
     )
 
     DQN_state = env._extract_state(state)
-    agent = torch.load("./agents/holdem/logs/model.pth")
     return agent.predict(DQN_state)
 
 
@@ -62,6 +61,7 @@ class HoldemMCTSAgent:
         Q = {}
         N = {}
         T = {}
+        agent = torch.load("./agents/holdem/logs/model.pth")
         for itr in range(num_iterations):
             model_game = state.__copy__()
             initial_bankroll = model_game.players[0]["bankroll"]
@@ -72,7 +72,7 @@ class HoldemMCTSAgent:
                 actions = model_game.get_legal_actions()
                 S = model_game.serialize()
                 s_test = model_game.get_state()
-                print(get_DQN_values(state_to_DQN(s_test)))
+                print(get_DQN_values(state_to_DQN(s_test), agent))
                 if S not in T:
                     T[S] = 0
                 T[S] += 1
