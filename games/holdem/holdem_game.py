@@ -216,7 +216,6 @@ class HoldemPoker:
                            hands=(self.players[0]["hand"], self.players[1]["hand"]))
 
     def serialize(self):
-
         return self.community_cards[0] if len(self.community_cards) > 0 else None, \
                self.community_cards[1] if len(self.community_cards) > 1 else None, \
                self.community_cards[2] if len(self.community_cards) > 2 else None, \
