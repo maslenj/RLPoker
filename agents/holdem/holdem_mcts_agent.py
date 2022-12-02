@@ -1,7 +1,38 @@
 import random
 from numpy import sqrt, log
 
+import os
+import argparse
+
+import torch
+
+import rlcard
+from rlcard.agents import DQNAgent
+from rlcard.agents.dqn_agent import Estimator
+from rlcard.agents.dqn_agent import EstimatorNetwork
+from rlcard.utils import (
+    get_device,
+    set_seed,
+    tournament,
+    reorganize,
+    Logger,
+    plot_curve,
+)
+
+from games.holdem.translate_state import state_to_DQN
 from games.holdem.holdem_game import HoldemPoker
+
+
+def get_DQN_values(state, agent):
+    env = rlcard.make(
+        'limit-holdem',
+        config={
+            'seed': 17,
+        }
+    )
+
+    DQN_state = env._extract_state(state)
+    return agent.predict(DQN_state)
 
 
 class HoldemMCTSAgent:
@@ -30,6 +61,7 @@ class HoldemMCTSAgent:
         Q = {}
         N = {}
         T = {}
+        agent = torch.load("./agents/holdem/logs/model.pth")
         for itr in range(num_iterations):
             model_game = state.__copy__()
             initial_bankroll = model_game.players[0]["bankroll"]
@@ -39,6 +71,8 @@ class HoldemMCTSAgent:
                 # initialize new Q values
                 actions = model_game.get_legal_actions()
                 S = model_game.serialize()
+                s_test = model_game.get_state()
+                print(get_DQN_values(state_to_DQN(s_test), agent))
                 if S not in T:
                     T[S] = 0
                 T[S] += 1
