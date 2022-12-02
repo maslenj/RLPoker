@@ -1,3 +1,4 @@
+import math
 import random
 from numpy import sqrt, log
 
@@ -57,7 +58,7 @@ class HoldemMCTSAgent:
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
-        num_iterations = 100
+        num_iterations = 1
         Q = {}
         N = {}
         T = {}
@@ -72,13 +73,21 @@ class HoldemMCTSAgent:
                 actions = model_game.get_legal_actions()
                 S = model_game.serialize()
                 s_test = model_game.get_state()
-                print(get_DQN_values(state_to_DQN(s_test), agent))
+                DQN_values = get_DQN_values(state_to_DQN(s_test), agent)
                 if S not in T:
                     T[S] = 0
                 T[S] += 1
                 for A in actions:
                     if (S, A) not in Q:
-                        Q[(S, A)] = 0
+                        if A == "call":
+                            if DQN_values[0] != -math.inf:
+                                Q[(S, A)] = DQN_values[0]
+                            else:
+                                Q[(S, A)] = DQN_values[3]
+                        elif A == "raise":
+                            Q[(S, A)] = DQN_values[1]
+                        elif A == "fold":
+                            Q[(S, A)] = DQN_values[2]
                     if (S, A) not in N:
                         N[(S, A)] = 0
                     N[(S, A)] += 1
