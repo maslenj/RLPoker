@@ -39,6 +39,9 @@ def get_DQN_values(state, agent):
 class HoldemMCTSAgent:
     c = 1
 
+    def __init__(self, num_iterations):
+        self.num_iterations = num_iterations
+
     @staticmethod
     def opponent_action_model(state: HoldemPoker):
         return random.choice(state.get_legal_actions())
@@ -58,7 +61,7 @@ class HoldemMCTSAgent:
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
-        num_iterations = 1
+        num_iterations = self.num_iterations
         Q = {}
         N = {}
         T = {}
