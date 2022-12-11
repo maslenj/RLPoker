@@ -39,7 +39,6 @@ class PokerHandDataset(Dataset):
                 'seed': 17,
             }
         )
-
         with open(self.path, 'r') as f:
             line = f.readline()
             while line:
@@ -48,7 +47,7 @@ class PokerHandDataset(Dataset):
                 state, action = example['state'], example['action']
                 DQN_state = state_to_DQN(state)
                 input_feature = self.env._extract_state(DQN_state)['obs']
-                input_feature = np.expand_dims(input_feature['obs'], 0)
+                input_feature = np.expand_dims(input_feature, axis=0)
                 self.x.append(input_feature)
                 self.y.append(one_hot_action_encoding(action))
                 line = f.readline()

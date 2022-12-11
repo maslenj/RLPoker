@@ -20,14 +20,14 @@ class HumanModel:
         self.mlp_layers = mlp_layers
 
         self.model = EstimatorNetwork(num_actions,
-                                      state_shape,
+                                      state_shape[0],
                                       mlp_layers)
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         print(self.device)
 
-        trainset = PokerHandDataset('./RLPoker/dataset/train_hands.json')
-        validset = PokerHandDataset('./RLPoker/dataset/valid_hands.json')
-        testset = PokerHandDataset('./RLPoker/dataset/test_hands.json')
+        trainset = PokerHandDataset('train.json')
+        validset = PokerHandDataset('val.json')
+        testset = PokerHandDataset('test.json')
 
         self.train_loader = DataLoader(trainset, batch_size=64, shuffle=True)
         self.valid_loader = DataLoader(validset, batch_size=64, shuffle=True)
@@ -100,7 +100,7 @@ class HumanModel:
                 running_val_acc /= len(self.valid_loader.dataset.y)
                 running_val_loss /= self.valid_loader.__len__()
                 if len(val_loss) != 0 and np.mean(running_val_loss) < min(val_loss):
-                    torch.save(self.model.state_dict(), 'best.sav')
+                    torch.save(self.model, 'best.sav')
                 val_loss.append(running_val_loss)
                 val_acc.append(running_val_acc)
 
@@ -154,3 +154,19 @@ class HumanModel:
                 acc = np.average(y.numpy() == np.argmax(y_hat.numpy(), axis=1))
                 t_acc.append(acc.item())
         print(f"Test accuracy: {np.average(t_acc)}")
+
+
+def main():
+    env = rlcard.make(
+        'limit-holdem',
+        config={
+            'seed': 17,
+        }
+    )
+    model = HumanModel(num_actions=env.num_actions, state_shape=env.state_shape, mlp_layers=[64, 64])
+
+    model.train()
+
+
+if __name__ == '__main__':
+    main()
