@@ -39,12 +39,17 @@ def get_DQN_values(state, agent):
 class HoldemMCTSAgent:
     c = 1
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def opponent_action_model(state: HoldemPoker):
         return random.choice(state.get_legal_actions())
 
     @staticmethod
     def opponent_hand_model(state: HoldemPoker):
+        # todo: Jimmy
+
         # assuming that we are player 1
         deck = HoldemPoker.DECK.copy()
         deck.remove(state.players[0]['hand'][0])

@@ -50,7 +50,7 @@ def gen_episode(p, hand):
             S['o_cards'] = hand['board'][:3]
             S['pot'] = pots[1]
             if pots[1][0] == 0:
-                print(ep)
+                # print(ep)
                 S['call'] = min(player['bankroll'], hand['players'][opp_p]['bankroll'])
             else:
                 S['call'] = pots[1][1] / pots[1][0]
@@ -60,7 +60,7 @@ def gen_episode(p, hand):
             S['o_cards'] = hand['board'][:4]
             S['pot'] = pots[2]
             if pots[2][0] == 0:
-                print(ep)
+                # print(ep)
                 S['call'] = min(player['bankroll'], hand['players'][opp_p]['bankroll'])
             else:
                 S['call'] = pots[2][1] / pots[2][0]
@@ -70,7 +70,7 @@ def gen_episode(p, hand):
             S['o_cards'] = hand['board'][:]
             S['pot'] = pots[3]
             if pots[3][0] == 0:
-                print(ep)
+                # print(ep)
                 S['call'] = min(player['bankroll'], hand['players'][opp_p]['bankroll'])
             else:
                 S['call'] = pots[3][1] / pots[3][0]
@@ -80,12 +80,12 @@ def gen_episode(p, hand):
     return ep
 
 
-def main():
+def generate_episodes(filename):
     episodes = []  # Format is State, action, reward
     try:
-        with open('../RLFinalProject/PokerHandsDataset/hands_valid.json', 'r') as f:
+        with open(filename, 'r') as f:
             # print('#' * 60)
-            actions = {'B': 'blind', 'k': 'check', 'b': 'bet', 'c': 'call', '-': 'All-in', 'r': 'raise'}
+            # actions = {'B': 'blind', 'k': 'check', 'b': 'bet', 'c': 'call', '-': 'All-in', 'r': 'raise'}
             line = f.readline()
             while line:
                 hand = json.loads(line)
@@ -98,9 +98,14 @@ def main():
                 # print('#' * 60)
                 line = f.readline()
         print(len(episodes))
-        print('Finished.')
+        print('Episodes generated.')
     except KeyboardInterrupt:
         print('Interrupted.')
+    return episodes
+
+
+def main():
+    generate_episodes("hands_valid.json")
 
 
 if __name__ == '__main__':
