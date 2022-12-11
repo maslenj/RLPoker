@@ -3,8 +3,8 @@ from agents.holdem.holdem_random_agent import HoldemRandomAgent
 from agents.holdem.holdem_mcts_agent import HoldemMCTSAgent
 
 num_games = 100
-game = HoldemPoker(bankrolls=(20, 20))
-agents = [HoldemMCTSAgent(), HoldemRandomAgent()]
+game = HoldemPoker(bankrolls=(100, 100))
+agents = [HoldemMCTSAgent(500), HoldemMCTSAgent(1)]
 for _ in range(num_games):
     player_bankrupt = False
     for p in game.players:
@@ -19,5 +19,3 @@ for _ in range(num_games):
         game.make_move(action)
 print(f"player 0 result: {game.players[0]['bankroll']}")
 print(f"player 1 result: {game.players[1]['bankroll']}")
-
-
