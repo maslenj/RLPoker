@@ -4,7 +4,7 @@ from agents.holdem.holdem_mcts_agent import HoldemMCTSAgent
 
 num_games = 10
 game = HoldemPoker(bankrolls=(100, 100))
-agents = [HoldemMCTSAgent(), HoldemMCTSAgent()]
+agents = [HoldemMCTSAgent(), HoldemRandomAgent()]
 for game_number in range(num_games):
     print(game_number)
     player_bankrupt = False

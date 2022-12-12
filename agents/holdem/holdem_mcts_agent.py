@@ -1,9 +1,11 @@
 import math
 import random
+import pickle
+import numpy as np
+
 from dataset_generation.test_hand_strength_data import build_raise_dictionary
 from dataset_generation.hand_strength_data_generation import rank_hand
 
-from numpy import sqrt, log
 import torch
 import rlcard
 
@@ -26,9 +28,19 @@ def get_DQN_values(state, agent):
 class HoldemMCTSAgent:
     c = 1
 
-    @staticmethod
-    def opponent_action_model(state: HoldemPoker):
-        return random.choice(state.get_legal_actions())
+    def __init__(self):
+        self.action_model = pickle.load(open('dataset_generation/ActionModel.sav', 'rb'))
+
+    def opponent_action_model(self, state: HoldemPoker):
+        input_feature = [state.round_number, state.calling_amount, state.pot]
+        prediction = self.action_model.predict_proba(np.array(input_feature, ndmin=2))
+        prediction = prediction[0]
+        choices = state.get_legal_actions()
+        if len(choices) == 2:
+            p = [prediction[0] + (prediction[1] / 2), prediction[2] + (prediction[1] / 2)]
+        else:
+            p = prediction
+        return np.random.choice(choices, p=p)
 
     @staticmethod
     def opponent_hand_model(state: HoldemPoker):
@@ -99,7 +111,7 @@ class HoldemMCTSAgent:
                     if (S, A) not in N:
                         N[(S, A)] = 0
                     N[(S, A)] += 1
-                action_values = [Q[(S, A)] + self.c * sqrt(log(T[S]) / N[S, A]) for A in actions]
+                action_values = [Q[(S, A)] + self.c * np.sqrt(np.log(T[S]) / N[S, A]) for A in actions]
                 best_val = max(action_values)
                 candidate_actions = []
                 for i in range(len(actions)):
