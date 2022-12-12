@@ -2,7 +2,6 @@ from __future__ import annotations
 from pokerlib import HandParser
 from pokerlib.enums import Value, Suit
 import random
-from games.holdem.translate_state import state_to_DQN
 
 
 class HoldemPoker:
@@ -37,7 +36,7 @@ class HoldemPoker:
 
     def __init__(self, num_players=2, bankrolls=(100, 100), deck=None, community_cards=None, round_number=None,
                  bet_number=None, pot=None, calling_amount=None, raise_amount=1, start_player=0,
-                 current_player=None, round_raises=None, game_over=None, hands=None):
+                 current_player=None, round_raises=None, game_over=None, action_history=None, hands=None):
         self.num_players = num_players
         self.deck = deck
         self.community_cards = community_cards
@@ -50,6 +49,7 @@ class HoldemPoker:
         self.current_player = current_player
         self.round_raises = round_raises
         self.game_over = game_over
+        self.action_history = action_history
         self.players = [
             {
                 'hand': [],
@@ -112,6 +112,7 @@ class HoldemPoker:
         if action not in self.get_legal_actions():
             print("Illegal action")
             return
+        self.action_history.append(action)
         if action == "call":
             self.pot += self.calling_amount
             self.players[self.current_player]['bankroll'] -= self.calling_amount
@@ -152,6 +153,7 @@ class HoldemPoker:
         self.current_player = self.start_player
         self.round_raises = [0, 0, 0, 0]
         self.game_over = False
+        self.action_history = []
         for p in self.players:
             p["hand"] = []
         for i in range(self.num_players):
@@ -224,6 +226,7 @@ class HoldemPoker:
                            calling_amount=self.calling_amount, raise_amount=self.raise_amount,
                            start_player=self.start_player, current_player=self.current_player,
                            round_raises=self.round_raises.copy(), game_over=self.game_over,
+                           action_history=self.action_history.copy(),
                            hands=(self.players[0]["hand"], self.players[1]["hand"]))
 
     def serialize(self):

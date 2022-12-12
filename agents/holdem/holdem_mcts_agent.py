@@ -1,24 +1,10 @@
 import math
 import random
+from typing import List
+
 from numpy import sqrt, log
-
-import os
-import argparse
-
 import torch
-
 import rlcard
-from rlcard.agents import DQNAgent
-from rlcard.agents.dqn_agent import Estimator
-from rlcard.agents.dqn_agent import EstimatorNetwork
-from rlcard.utils import (
-    get_device,
-    set_seed,
-    tournament,
-    reorganize,
-    Logger,
-    plot_curve,
-)
 
 from games.holdem.translate_state import state_to_DQN
 from games.holdem.holdem_game import HoldemPoker
@@ -51,6 +37,13 @@ class HoldemMCTSAgent:
         deck.remove(state.players[0]['hand'][1])
         for card in state.community_cards:
             deck.remove(card)
+
+        # count number of raises by opponent in round
+        num_raises = 0
+        for i in range(len(state.action_history) - 2, -1, -2):
+            if state.action_history[i] == 'raise':
+                num_raises += 1
+
         card1 = random.choice(deck)
         deck.remove(card1)
         card2 = random.choice(deck)

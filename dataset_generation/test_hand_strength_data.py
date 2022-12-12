@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -11,8 +12,16 @@ def main():
         if num_raises not in raise_dict:
             raise_dict[num_raises] = []
         raise_dict[num_raises].append(hand_strength)
-    for i in range(6):
-        print(i, np.average(raise_dict[i]))
+    raises = 1
+    plt.hist(raise_dict[raises], bins=10)
+    plt.show()
+
+    print("mean:", np.mean(raise_dict[raises]))
+    print("sd:", np.std(raise_dict[raises]))
+
+    # for i in range(6):
+    #     plt.hist()
+    #     print(i, np.average(raise_dict[i]))
 
 
 if __name__ == '__main__':
