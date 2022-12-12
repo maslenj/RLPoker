@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def main():
+def build_raise_dictionary():
     df = pd.read_csv("hand_modeling_data.csv")
     raise_dict = {}
     for row in df.values:
@@ -12,6 +12,11 @@ def main():
         if num_raises not in raise_dict:
             raise_dict[num_raises] = []
         raise_dict[num_raises].append(hand_strength)
+    return raise_dict
+
+
+def main():
+    raise_dict = build_raise_dictionary()
     raises = 1
     plt.hist(raise_dict[raises], bins=10)
     plt.show()

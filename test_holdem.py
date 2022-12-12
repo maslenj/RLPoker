@@ -2,10 +2,11 @@ from games.holdem.holdem_game import HoldemPoker
 from agents.holdem.holdem_random_agent import HoldemRandomAgent
 from agents.holdem.holdem_mcts_agent import HoldemMCTSAgent
 
-num_games = 100
+num_games = 10
 game = HoldemPoker(bankrolls=(100, 100))
-agents = [HoldemMCTSAgent(500), HoldemMCTSAgent(1)]
-for _ in range(num_games):
+agents = [HoldemMCTSAgent(), HoldemMCTSAgent()]
+for game_number in range(num_games):
+    print(game_number)
     player_bankrupt = False
     for p in game.players:
         if p["bankroll"] < game.raise_amount:

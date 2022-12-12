@@ -1,6 +1,7 @@
 import math
 import random
-from typing import List
+from dataset_generation.test_hand_strength_data import build_raise_dictionary
+from dataset_generation.hand_strength_data_generation import rank_hand
 
 from numpy import sqrt, log
 import torch
@@ -44,10 +45,24 @@ class HoldemMCTSAgent:
             if state.action_history[i] == 'raise':
                 num_raises += 1
 
+        # sample hand strength based on the number of raises
+        raise_dict = build_raise_dictionary()
+        expected_hand_strength = random.choice(raise_dict[num_raises])
+        epsilon = 0.1
+
         card1 = random.choice(deck)
         deck.remove(card1)
         card2 = random.choice(deck)
         deck.remove(card2)
+        hand_strength = rank_hand([card1, card2], state.community_cards)
+        while abs(hand_strength - expected_hand_strength) > epsilon:
+            deck.append(card1)
+            deck.append(card2)
+            card1 = random.choice(deck)
+            deck.remove(card1)
+            card2 = random.choice(deck)
+            deck.remove(card2)
+            hand_strength = rank_hand([card1, card2], state.community_cards)
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
