@@ -2,7 +2,7 @@ import json
 import numpy as np
 import pickle
 
-from dataset import one_hot_action_encoding
+from dataset_generation.dataset import one_hot_action_encoding
 from sklearn.linear_model import LogisticRegression
 
 
@@ -11,7 +11,7 @@ def main():
     labels = []
     label_dict = {'call': [], 'raise': [], 'fold': []}
     action_map = {'call': 0, 'raise': 1, 'fold': 2}
-    with open('../data.json', 'r') as f:
+    with open('../dataset/data.json', 'r') as f:
         line = f.readline()
         while line:
             example = json.loads(line)

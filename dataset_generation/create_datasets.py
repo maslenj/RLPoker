@@ -21,21 +21,21 @@ def create_datasets(filepath):
     val_data = data[int(split*len(data)):int(val_split*len(data))]
     test_data = data[int(val_split)*len(data):]
 
-    with open('train.json', 'w') as f:
+    with open('../dataset/train.json', 'w') as f:
         f.writelines(train_data)
         f.close()
 
-    with open('val.json', 'w') as f:
+    with open('../dataset/val.json', 'w') as f:
         f.writelines(val_data)
         f.close()
 
-    with open('test.json', 'w') as f:
+    with open('../dataset/test.json', 'w') as f:
         f.writelines(test_data)
         f.close()
 
 
 def main():
-    create_datasets('data.json')
+    create_datasets('../dataset/data.json')
 
 
 if __name__ == '__main__':

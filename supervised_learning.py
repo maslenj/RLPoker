@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader
 from rlcard.agents.dqn_agent import EstimatorNetwork
-from dataset import *
+from dataset_generation.dataset import *
 
 
 class HumanModel:
@@ -25,13 +25,13 @@ class HumanModel:
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         print(self.device)
 
-        trainset = PokerHandDataset('train.json')
-        validset = PokerHandDataset('val.json')
-        testset = PokerHandDataset('test.json')
+        trainset = PokerHandDataset('dataset/train.json')
+        validset = PokerHandDataset('dataset/val.json')
+        testset = PokerHandDataset('dataset/test.json')
 
-        self.train_loader = DataLoader(trainset, batch_size=64, shuffle=True)
-        self.valid_loader = DataLoader(validset, batch_size=64, shuffle=True)
-        self.test_loader = DataLoader(testset, batch_size=32, shuffle=True)
+        self.train_loader = DataLoader(trainset, batch_size=128, shuffle=True)
+        self.valid_loader = DataLoader(validset, batch_size=128, shuffle=True)
+        self.test_loader = DataLoader(testset, batch_size=64, shuffle=True)
 
     def train(self):
         if self.device.type == "cuda":
