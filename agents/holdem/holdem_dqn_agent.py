@@ -1,153 +1,31 @@
-# The code is derived from https://github.com/datamllab/rlcard/blob/master/examples/run_rl.py
-
-# CITE: Zha, Daochen, et al. "RLCard: A Platform for Reinforcement Learning in Card Games." IJCAI. 2020.
-
-import os
-import argparse
+import numpy as np
 
 import torch
-
 import rlcard
-from rlcard.agents import RandomAgent
-from rlcard.utils import (
-    get_device,
-    set_seed,
-    tournament,
-    reorganize,
-    Logger,
-    plot_curve,
-)
+
+from games.holdem.translate_state import state_to_DQN
+from games.holdem.holdem_game import HoldemPoker
 
 
-def train(args):
-    # Check whether gpu is available
-    device = get_device()
+class HoldemDQNAgent:
 
-    # Seed numpy, torch, random
-    set_seed(args.seed)
+    def __init__(self):
+        self.dqn = torch.load('../agents/holdem/plain_dqn_logs/model.pth')
 
-    # Make the environment with seed
-    env = rlcard.make(
-        args.env,
-        config={
-            'seed': args.seed,
-        }
-    )
-
-    # Initialize the agent and use random agents as opponents
-    if args.algorithm == 'dqn':
-        from rlcard.agents import DQNAgent
-        agent = DQNAgent(
-            num_actions=env.num_actions,
-            state_shape=env.state_shape[0],
-            mlp_layers=[64, 64],
-            device=device
-        )
-        agent.q_estimator.qnet = torch.load('pokerdqn.sav', map_location='cpu')
-        agent.q_estimator.qnet.eval()
-        agent.q_estimator.optimizer = torch.optim.Adam(agent.q_estimator.qnet.parameters(), lr=agent.q_estimator.learning_rate)
-    agents = [agent]
-    for _ in range(1, env.num_players):
-        agents.append(RandomAgent(num_actions=env.num_actions))
-    env.set_agents(agents)
-
-    # Start training
-    with Logger(args.log_dir) as logger:
-        for episode in range(args.num_episodes):
-
-            # Generate data from the environment
-            trajectories, payoffs = env.run(is_training=True)
-
-            # Reorganaize the data to be state, action, reward, next_state, done
-            trajectories = reorganize(trajectories, payoffs)
-
-            # Feed transitions into agent memory, and train the agent
-            # Here, we assume that DQN always plays the first position
-            # and the other players play randomly (if any)
-            for ts in trajectories[0]:
-                agent.feed(ts)
-
-            # Evaluate the performance. Play with random agents.
-            if episode % args.evaluate_every == 0:
-                logger.log_performance(
-                    env.timestep,
-                    tournament(
-                        env,
-                        args.num_eval_games,
-                    )[0]
-                )
-
-        # Get the paths
-        csv_path, fig_path = logger.csv_path, logger.fig_path
-
-    # Plot the learning curve
-    plot_curve(csv_path, fig_path, args.algorithm)
-
-    # Save model
-    save_path = os.path.join(args.log_dir, 'model.pth')
-    torch.save(agent, save_path)
-    print('Model saved in', save_path)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser("DQN/NFSP example in RLCard")
-    parser.add_argument(
-        '--env',
-        type=str,
-        default='limit-holdem',
-        choices=[
-            'blackjack',
-            'leduc-holdem',
+    def get_DQN_values(self, state):
+        env = rlcard.make(
             'limit-holdem',
-            'doudizhu',
-            'mahjong',
-            'no-limit-holdem',
-            'uno',
-            'gin-rummy',
-            'bridge',
-        ],
-    )
-    parser.add_argument(
-        '--algorithm',
-        type=str,
-        default='dqn',
-        choices=[
-            'dqn',
-            'nfsp',
-        ],
-    )
-    parser.add_argument(
-        '--cuda',
-        type=str,
-        default='',
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=17,
-    )
-    parser.add_argument(
-        '--num_episodes',
-        type=int,
-        default=5000,
-    )
-    parser.add_argument(
-        '--num_eval_games',
-        type=int,
-        default=2000,
-    )
-    parser.add_argument(
-        '--evaluate_every',
-        type=int,
-        default=100,
-    )
-    parser.add_argument(
-        '--log_dir',
-        type=str,
-        default='logs',
-    )
+            config={
+                'seed': 17,
+            }
+        )
 
-    args = parser.parse_args()
+        DQN_state = env._extract_state(state)
+        return self.dqn.predict(DQN_state)
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
-    train(args)
+    def get_action(self, state: HoldemPoker):
+        possible_actions = state.get_legal_actions()
+        q_values = self.get_DQN_values(state_to_DQN(state.get_state()))
+        action_map = {0: 'call', 1: 'raise', 2: 'fold', 3: 'call'}
+        selected_action = action_map[np.argmax(q_values)]
+        return selected_action if selected_action in possible_actions else None

@@ -29,7 +29,7 @@ class HoldemMCTSAgent:
     c = 1
 
     def __init__(self):
-        self.action_model = pickle.load(open('dataset_generation/ActionModel.sav', 'rb'))
+        self.action_model = pickle.load(open('../dataset_generation/ActionModel.sav', 'rb'))
 
     def opponent_action_model(self, state: HoldemPoker):
         input_feature = [state.round_number, state.calling_amount, state.pot]
@@ -78,11 +78,11 @@ class HoldemMCTSAgent:
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
-        num_iterations = 100
+        num_iterations = 1000
         Q = {}
         N = {}
         T = {}
-        agent = torch.load("./agents/holdem/logs/model.pth")
+        agent = torch.load("../agents/holdem/logs/model.pth")
         for itr in range(num_iterations):
             model_game = state.__copy__()
             initial_bankroll = model_game.players[0]["bankroll"]
