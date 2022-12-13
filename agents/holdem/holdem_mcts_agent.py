@@ -28,8 +28,9 @@ def get_DQN_values(state, agent):
 class HoldemMCTSAgent:
     c = 1
 
-    def __init__(self):
+    def __init__(self, num_rollouts):
         self.action_model = pickle.load(open('../dataset_generation/ActionModel.sav', 'rb'))
+        self.num_rollouts = num_rollouts
 
     def opponent_action_model(self, state: HoldemPoker):
         input_feature = [state.round_number, state.calling_amount, state.pot]
@@ -78,12 +79,11 @@ class HoldemMCTSAgent:
         return [card1, card2]
 
     def get_action(self, state: HoldemPoker):
-        num_iterations = 1000
         Q = {}
         N = {}
         T = {}
         agent = torch.load("../agents/holdem/logs/model.pth")
-        for itr in range(num_iterations):
+        for itr in range(self.num_rollouts):
             model_game = state.__copy__()
             initial_bankroll = model_game.players[0]["bankroll"]
             path = []
