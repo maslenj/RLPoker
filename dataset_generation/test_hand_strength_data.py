@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def build_raise_dictionary():
-    df = pd.read_csv("hand_modeling_data.csv")
+    df = pd.read_csv("../dataset_generation/hand_modeling_data.csv")
     raise_dict = {}
     for row in df.values:
         num_raises = row[0]

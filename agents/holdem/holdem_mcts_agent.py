@@ -13,14 +13,13 @@ from games.holdem.translate_state import state_to_DQN
 from games.holdem.holdem_game import HoldemPoker
 
 
-def get_DQN_values(state, agent):
+def get_dqn_values(state, agent):
     env = rlcard.make(
         'limit-holdem',
         config={
             'seed': 17,
         }
     )
-
     DQN_state = env._extract_state(state)
     return agent.predict(DQN_state)
 
@@ -28,9 +27,11 @@ def get_DQN_values(state, agent):
 class HoldemMCTSAgent:
     c = 1
 
-    def __init__(self, num_rollouts):
+    def __init__(self, num_rollouts=100, use_dqn=True):
         self.action_model = pickle.load(open('../dataset_generation/ActionModel.sav', 'rb'))
         self.num_rollouts = num_rollouts
+        self.raise_dict = build_raise_dictionary()
+        self.use_dqn = use_dqn
 
     def opponent_action_model(self, state: HoldemPoker):
         input_feature = [state.round_number, state.calling_amount, state.pot]
@@ -43,8 +44,7 @@ class HoldemMCTSAgent:
             p = prediction
         return np.random.choice(choices, p=p)
 
-    @staticmethod
-    def opponent_hand_model(state: HoldemPoker):
+    def opponent_hand_model(self, state: HoldemPoker):
         # assuming that we are player 1
         deck = HoldemPoker.DECK.copy()
         deck.remove(state.players[0]['hand'][0])
@@ -59,9 +59,9 @@ class HoldemMCTSAgent:
                 num_raises += 1
 
         # sample hand strength based on the number of raises
-        raise_dict = build_raise_dictionary()
-        expected_hand_strength = random.choice(raise_dict[num_raises])
-        epsilon = 0.1
+
+        expected_hand_strength = random.choice(self.raise_dict[num_raises])
+        epsilon = 0.05
 
         card1 = random.choice(deck)
         deck.remove(card1)
@@ -93,13 +93,15 @@ class HoldemMCTSAgent:
                 actions = model_game.get_legal_actions()
                 S = model_game.serialize()
                 s_test = model_game.get_state()
-                DQN_values = get_DQN_values(state_to_DQN(s_test), agent)
+                DQN_values = get_dqn_values(state_to_DQN(s_test), agent)
                 if S not in T:
                     T[S] = 0
                 T[S] += 1
                 for A in actions:
                     if (S, A) not in Q:
-                        if A == "call":
+                        if not self.use_dqn:
+                            Q[(S, A)] = 0
+                        elif A == "call":
                             if DQN_values[0] != -math.inf:
                                 Q[(S, A)] = DQN_values[0]
                             else:
