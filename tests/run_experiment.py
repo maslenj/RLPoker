@@ -6,10 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def run_experiment(num_games, agents):
+def run_experiment(num_hands, agents):
     game = HoldemPoker(bankrolls=(100, 100))
-    for game_number in range(num_games):
-        # print(game_number)
+    for hand_number in range(num_hands):
         player_bankrupt = False
         for p in game.players:
             if p["bankroll"] < game.raise_amount:
@@ -34,7 +33,7 @@ def main():
     agents = [
         HoldemMCTSAgent(500, use_dqn=True),
         HoldemMCTSAgent(500, use_dqn=False),
-        HoldemDQNAgent(),
+        HoldemDQNAgent('../agents/holdem/plain_dqn_logs/model.pth'),
         HoldemRandomAgent(),
     ]
     results = np.array([[0.5 for _ in range(len(agents))] for _ in range(len(agents))])
@@ -47,7 +46,7 @@ def main():
             games_to_play = 50
             for g in range(games_to_play):
                 print(f"{g + 1}/{games_to_play}")
-                i_br, j_br = run_experiment(10, [agents[i], agents[j]])
+                i_br, j_br = run_experiment(25, [agents[i], agents[j]])
                 if i_br > j_br:
                     num_wins += 1
             results[i][j] = num_wins / games_to_play
@@ -80,10 +79,6 @@ def main():
     plt.show()
 
     print("done")
-    # agents1 = [HoldemMCTSAgent(1000), HoldemDQNAgent()]
-    # agents2 = [HoldemMCTSAgent(1000), HoldemRandomAgent()]
-    # run_experiment(50, agents1)
-    # run_experiment(50, agents2)
 
 
 if __name__ == '__main__':

@@ -135,7 +135,6 @@ class HumanModel:
         plt.show()
 
     def test(self):
-        self.model.load_state_dict(torch.load('best'))
         self.model.eval()
 
         t_acc = []

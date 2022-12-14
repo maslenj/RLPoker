@@ -9,8 +9,9 @@ from games.holdem.holdem_game import HoldemPoker
 
 class HoldemDQNAgent:
 
-    def __init__(self):
+    def __init__(self, filepath):
         self.dqn = torch.load('../agents/holdem/plain_dqn_logs/model.pth')
+        self.dqn = torch.load(filepath)
 
     def get_DQN_values(self, state):
         env = rlcard.make(
