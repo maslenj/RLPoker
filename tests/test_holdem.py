@@ -5,7 +5,7 @@ from agents.holdem.holdem_dqn_agent import HoldemDQNAgent
 
 num_games = 50
 game = HoldemPoker(bankrolls=(100, 100))
-agents = [HoldemMCTSAgent(1000), HoldemDQNAgent()]
+agents = [HoldemMCTSAgent(1000), HoldemDQNAgent('../agents/holdem/plain_dqn_logs/model.pth')]
 for game_number in range(num_games):
     print(game_number)
     player_bankrupt = False

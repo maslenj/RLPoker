@@ -1,9 +1,10 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 from games.holdem.holdem_game import HoldemPoker
 from agents.holdem.holdem_random_agent import HoldemRandomAgent
 from agents.holdem.holdem_mcts_agent import HoldemMCTSAgent
 from agents.holdem.holdem_dqn_agent import HoldemDQNAgent
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def run_experiment(num_hands, agents):
@@ -24,15 +25,20 @@ def run_experiment(num_hands, agents):
 
 
 def main():
+    games_to_play = 50
+    num_hands_per_game = 25
+    num_rollouts = 500
+
     names = [
         "MCTS w/ DQN",
         "MCTS w/out DQN",
         "DQN",
         "Random"
     ]
+
     agents = [
-        HoldemMCTSAgent(500, use_dqn=True),
-        HoldemMCTSAgent(500, use_dqn=False),
+        HoldemMCTSAgent(num_rollouts, use_dqn=True),
+        HoldemMCTSAgent(num_rollouts, use_dqn=False),
         HoldemDQNAgent('../agents/holdem/plain_dqn_logs/model.pth'),
         HoldemRandomAgent(),
     ]
@@ -43,10 +49,9 @@ def main():
         for j in range(i + 1, len(agents)):
             print(f"running {names[i]} vs {names[j]}")
             num_wins = 0
-            games_to_play = 50
             for g in range(games_to_play):
                 print(f"{g + 1}/{games_to_play}")
-                i_br, j_br = run_experiment(25, [agents[i], agents[j]])
+                i_br, j_br = run_experiment(num_hands_per_game, [agents[i], agents[j]])
                 if i_br > j_br:
                     num_wins += 1
             results[i][j] = num_wins / games_to_play

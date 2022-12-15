@@ -2,13 +2,11 @@ import math
 import random
 import pickle
 import numpy as np
-
-from dataset_generation.test_hand_strength_data import build_raise_dictionary
-from dataset_generation.hand_strength_data_generation import rank_hand
-
 import torch
 import rlcard
 
+from dataset_generation.test_hand_strength_data import build_raise_dictionary
+from dataset_generation.hand_strength_data_generation import rank_hand
 from games.holdem.translate_state import state_to_DQN
 from games.holdem.holdem_game import HoldemPoker
 

@@ -1,7 +1,8 @@
-from tests.run_experiment import run_experiment
-from agents.holdem.holdem_dqn_agent import HoldemDQNAgent
 import numpy as np
 import matplotlib.pyplot as plt
+
+from tests.run_experiment import run_experiment
+from agents.holdem.holdem_dqn_agent import HoldemDQNAgent
 
 
 def main():
@@ -20,9 +21,11 @@ def main():
     print(f"running DQN with initialization vs Plain DQN")
     num_wins = 0
     games_to_play = 50
+    num_hands_per_game = 25
+
     for g in range(games_to_play):
         print(f"{g + 1}/{games_to_play}")
-        i_br, j_br = run_experiment(25, [dqn_agents[0], dqn_agents[1]])
+        i_br, j_br = run_experiment(num_hands_per_game, [dqn_agents[0], dqn_agents[1]])
         if i_br > j_br:
             num_wins += 1
     results[0][1] = num_wins / games_to_play

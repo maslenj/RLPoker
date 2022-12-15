@@ -1,0 +1,24 @@
+CS138 Final Project
+Title: Guided Reinforcement Learning in Poker Using Monte Carlo Tree Search and Deep Q-learning
+Authors: Jimmy Maslen and Rob Pitkin
+
+Required libraries/dependencies:
+- python
+- numpy
+- matplotlib
+- rlcard
+- pytorch
+- pickle
+- json
+- pandas
+- pokerlib
+- sklearn
+- copy
+
+How to run/replicate experiments:
+- cd tests
+- python run_experiment.py
+
+Change "games_to_play" and "num_hands_per_game" in run_experiment.py
+to vary experiment and game length. Change "num_rollouts" to vary the number
+of rollouts for MCTS agents playing.

@@ -1,8 +1,9 @@
 import rlcard
+import rlcard.envs.leducholdem
+
 from agents.leduc.leduc_random_agent import RandomAgent
 from agents.leduc.leduc_logic_agent import LogicAgent
 from agents.leduc.leduc_mcts_agent import MCTSAgent
-import rlcard.envs.leducholdem
 
 
 # Make environment
