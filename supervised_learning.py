@@ -137,10 +137,9 @@ class HumanModel:
     def test(self):
         self.model.eval()
 
-        t_acc = []
+        test_acc = 0.0
         with torch.no_grad():
-            # only one item in the iterator
-            # Add more batches if your device couldn't handle the computation
+            running_test_acc = 0.0
             for _, data in enumerate(self.test_loader):
                 x, y = data
                 x = x.to(self.device)
@@ -150,9 +149,13 @@ class HumanModel:
                 if self.device.type == "cuda":
                     y = y.to("cpu")
                     y_hat = y_hat.to("cpu")
-                acc = np.average(y.numpy() == np.argmax(y_hat.numpy(), axis=1))
-                t_acc.append(acc.item())
-        print(f"Test accuracy: {np.average(t_acc)}")
+
+                for l in range(len(x)):
+                    pred = torch.nn.functional.softmax(y_hat[l], dim=0)
+                    if torch.argmax(pred) == torch.argmax(y[l]):
+                        running_test_acc += 1
+            running_test_acc /= len(self.test_loader.dataset.y)
+        print(f"Test accuracy: {running_test_acc}")
 
 
 def main():
